@@ -1,10 +1,10 @@
-util.AddNetworkString("VoteInitiate")
-util.AddNetworkString("VoteRefresh")
-util.AddNetworkString("VoteTerminate")
+util.AddNetworkString("RAM_MapVoteInitiate")
+util.AddNetworkString("RAM_MapVoteRefresh")
+util.AddNetworkString("RAM_MapVoteTerminate")
 
 MapVote.Continued = false
 
-net.Receive("VoteRefresh", function(len, ply)
+net.Receive("RAM_MapVoteRefresh", function(len, ply)
     if(MapVote.Allow) then
         if(IsValid(ply)) then
             local update_type = net.ReadUInt(3)
@@ -15,7 +15,7 @@ net.Receive("VoteRefresh", function(len, ply)
                 if(MapVote.CurrentMaps[map_id]) then
                     MapVote.Votes[ply:SteamID()] = map_id
                     
-                    net.Start("VoteRefresh")
+                    net.Start("RAM_MapVoteRefresh")
                         net.WriteUInt(MapVote.UPDATE_VOTE, 3)
                         net.WriteEntity(ply)
                         net.WriteUInt(map_id, 32)
@@ -29,8 +29,8 @@ end)
 
 function MapVote.Start(length, current, limit, prefix, callback)
     current = current or MapVote.Config.AllowCurrentMap or false
-    length = length or MapVote.Config.TimeLimit or 30
-    limit = limit or MapVote.Config.MapLimit or 20
+    length = length or MapVote.Config.TimeLimit or 28
+    limit = limit or MapVote.Config.MapLimit or 24
 
     local is_expression = false
 
@@ -38,7 +38,7 @@ function MapVote.Start(length, current, limit, prefix, callback)
         local info = file.Read(GAMEMODE.Folder.."/"..GAMEMODE.FolderName..".txt", "GAME")
 
         if(info) then
-            local info = util.KeyValuesToTable (info)
+            local info = util.KeyValuesToTable(info)
             prefix = info.maps
         else
             error("MapVote Prefix can not be loaded from gamemode")
@@ -47,12 +47,12 @@ function MapVote.Start(length, current, limit, prefix, callback)
         is_expression = true
     else
         if prefix and type(prefix) ~= "table" then
-            prefix = (prefix)
+            prefix = {prefix}
         end
     end
     
     local maps = file.Find("maps/*.bsp", "GAME")
-     
+    
     local vote_maps = {}
     
     local amt = 0
@@ -62,7 +62,7 @@ function MapVote.Start(length, current, limit, prefix, callback)
         if(not current and game.GetMap():lower()..".bsp" == map) then continue end
 
         if is_expression then
-            if(string.find(map, prefix)) then
+            if(string.find(map, prefix)) then -- This might work (from gamemode.txt)
                 vote_maps[#vote_maps + 1] = map:sub(1, -5)
                 amt = amt + 1
             end
@@ -76,10 +76,10 @@ function MapVote.Start(length, current, limit, prefix, callback)
             end
         end
         
-        if(limit and amt > limit) then break end
+        if(limit and amt >= limit) then break end
     end
     
-    net.Start("VoteInitiate")
+    net.Start("RAM_MapVoteInitiate")
         net.WriteUInt(#vote_maps, 32)
         
         for i = 1, #vote_maps do
@@ -93,7 +93,7 @@ function MapVote.Start(length, current, limit, prefix, callback)
     MapVote.CurrentMaps = vote_maps
     MapVote.Votes = {}
     
-    timer.Create("Vote", length, 1, function()
+    timer.Create("RAM_MapVote", length, 1, function()
         MapVote.Allow = false
         local map_results = {}
         
@@ -116,7 +116,7 @@ function MapVote.Start(length, current, limit, prefix, callback)
         
         local winner = table.GetWinningKey(map_results) or 1
         
-        net.Start("VoteRefresh")
+        net.Start("RAM_MapVoteRefresh")
             net.WriteUInt(MapVote.UPDATE_WIN, 3)
             
             net.WriteUInt(winner, 32)
@@ -125,8 +125,8 @@ function MapVote.Start(length, current, limit, prefix, callback)
         local map = MapVote.CurrentMaps[winner]
 
         
-        timer.Simple(5, function()
-            if (hook.Run("VoteChange", map) != false) then
+        timer.Simple(4, function()
+            if (hook.Run("MapVoteChange", map) != false) then
                 if (callback) then
                     callback(map)
                 else
@@ -141,9 +141,9 @@ function MapVote.Cancel()
     if MapVote.Allow then
         MapVote.Allow = false
 
-        net.Start("VoteTerminate")
+        net.Start("RAM_MapVoteTerminate")
         net.Broadcast()
 
-        timer.Destroy("Vote")
+        timer.Destroy("RAM_MapVote")
     end
 end
