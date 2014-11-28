@@ -93,7 +93,7 @@ function MapVote.Start(length, current, limit, prefix, callback)
     MapVote.CurrentMaps = vote_maps
     MapVote.Votes = {}
     
-    timer.Create("Vote", length, 1, function())
+    timer.Create("Vote", length, 1, function()
         MapVote.Allow = false
         local map_results = {}
         
@@ -104,7 +104,7 @@ function MapVote.Start(length, current, limit, prefix, callback)
             
             for k2, v2 in pairs(player.GetAll()) do
                 if(v2:SteamID() == k) then
-                    if(MapVote.HasExtraVotePower(v2) then
+                    if(MapVote.HasExtraVotePower(v2)) then
                         map_results[v] = map_results[v] + 2
                     else
                         map_results[v] = map_results[v] + 1
