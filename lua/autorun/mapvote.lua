@@ -1,16 +1,14 @@
 MapVote = {}
 MapVote.Config = {}
 
--- CONFIG (sort of)
     MapVote.Config = {
-        MapLimit = 24,
-        TimeLimit = 28,
+        MapLimit = 20,
+        TimeLimit = 30,
         AllowCurrentMap = false,
     }
--- CONFIG
 
 function MapVote.HasExtraVotePower(ply)
-	-- Example that gives admins more voting power
+	-- Players with extra vote power.
 	if ply:IsAdmin() then
 		return true
 	end
@@ -25,7 +23,7 @@ MapVote.Votes = {}
 MapVote.Allow = false
 
 MapVote.UPDATE_VOTE = 1
-MapVote.UPDATE_WIN = 3
+MapVote.UPDATE_WIN = 5
 
 if SERVER then
     AddCSLuaFile()
