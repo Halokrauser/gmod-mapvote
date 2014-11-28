@@ -6,7 +6,7 @@ MapVote.Continued = false
 
 net.Receive("VoteRefresh", function(len, ply)
     if(MapVote.Allow) then
-        if(IsValid(ply) then
+        if(IsValid(ply)) then
             local update_type = net.ReadUInt(3)
             
             if(update_type == MapVote.UPDATE_VOTE) then
@@ -62,12 +62,12 @@ function MapVote.Start(length, current, limit, prefix, callback)
         if(not current and game.GetMap():lower()..".bsp" == map) then continue end
 
         if is_expression then
-            if(string.find(map, prefix) then
+            if(string.find(map, prefix)) then
                 vote_maps[#vote_maps + 1] = map:sub(1, -5)
                 amt = amt + 1
             end
         else
-            for k, v in pairs (prefix) do
+            for k, v in pairs(prefix) do
                 if string.find(map, "^"..v) then
                     vote_maps[#vote_maps + 1] = map:sub(1, -5)
                     amt = amt + 1
@@ -93,12 +93,12 @@ function MapVote.Start(length, current, limit, prefix, callback)
     MapVote.CurrentMaps = vote_maps
     MapVote.Votes = {}
     
-    timer.Create("Vote", length, 1, function()
+    timer.Create("Vote", length, 1, function())
         MapVote.Allow = false
         local map_results = {}
         
         for k, v in pairs(MapVote.Votes) do
-            if(not map_results[k]) then
+            if(not map_results[v]) then
                 map_results[v] = 0
             end
             
