@@ -1,10 +1,10 @@
-util.AddNetworkString("RAM_VoteInitiate")
-util.AddNetworkString("RAM_VoteRefresh")
-util.AddNetworkString("RAM_VoteTerminate")
+util.AddNetworkString("VoteInitiate")
+util.AddNetworkString("VoteRefresh")
+util.AddNetworkString("VoteTerminate")
 
 MapVote.Continued = false
 
-net.Receive("RAM_VoteRefresh", function(len, ply)
+net.Receive("VoteRefresh", function(len, ply)
     if(MapVote.Allow) then
         if(IsValid(ply) then
             local update_type = net.ReadUInt(3)
@@ -15,7 +15,7 @@ net.Receive("RAM_VoteRefresh", function(len, ply)
                 if(MapVote.CurrentMaps[map_id]) then
                     MapVote.Votes[ply:SteamID()] = map_id
                     
-                    net.Start("RAM_VoteRefresh")
+                    net.Start("VoteRefresh")
                         net.WriteUInt(MapVote.UPDATE_VOTE, 3)
                         net.WriteEntity(ply)
                         net.WriteUInt(map_id, 32)
@@ -79,7 +79,7 @@ function MapVote.Start(length, current, limit, prefix, callback)
         if(limit and amt > limit) then break end
     end
     
-    net.Start("RAM_VoteInitiate")
+    net.Start("VoteInitiate")
         net.WriteUInt(#vote_maps, 32)
         
         for i = 1, #vote_maps do
@@ -93,7 +93,7 @@ function MapVote.Start(length, current, limit, prefix, callback)
     MapVote.CurrentMaps = vote_maps
     MapVote.Votes = {}
     
-    timer.Create("RAM_Vote", length, 1, function()
+    timer.Create("Vote", length, 1, function()
         MapVote.Allow = false
         local map_results = {}
         
@@ -116,7 +116,7 @@ function MapVote.Start(length, current, limit, prefix, callback)
         
         local winner = table.GetWinningKey(map_results) or 1
         
-        net.Start("RAM_VoteRefresh")
+        net.Start("VoteRefresh")
             net.WriteUInt(MapVote.UPDATE_WIN, 3)
             
             net.WriteUInt(winner, 32)
@@ -141,9 +141,9 @@ function MapVote.Cancel()
     if MapVote.Allow then
         MapVote.Allow = false
 
-        net.Start("RAM_VoteTerminate")
+        net.Start("VoteTerminate")
         net.Broadcast()
 
-        timer.Destroy("RAM_Vote")
+        timer.Destroy("Vote")
     end
 end
