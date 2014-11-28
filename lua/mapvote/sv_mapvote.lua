@@ -6,7 +6,7 @@ MapVote.Continued = false
 
 net.Receive("RAM_VoteRefresh", function(len, ply)
     if(MapVote.Allow) then
-        if(IsValid(ply)) then
+        if(IsValid(ply) then
             local update_type = net.ReadUInt(3)
             
             if(update_type == MapVote.UPDATE_VOTE) then
@@ -29,8 +29,8 @@ end)
 
 function MapVote.Start(length, current, limit, prefix, callback)
     current = current or MapVote.Config.AllowCurrentMap or false
-    length = length or MapVote.Config.TimeLimit or 28
-    limit = limit or MapVote.Config.MapLimit or 24
+    length = length or MapVote.Config.TimeLimit or 30
+    limit = limit or MapVote.Config.MapLimit or 20
 
     local is_expression = false
 
@@ -38,7 +38,7 @@ function MapVote.Start(length, current, limit, prefix, callback)
         local info = file.Read(GAMEMODE.Folder.."/"..GAMEMODE.FolderName..".txt", "GAME")
 
         if(info) then
-            local info = util.KeyValuesToTable(info)
+            local info = util.KeyValuesToTable (info)
             prefix = info.maps
         else
             error("MapVote Prefix can not be loaded from gamemode")
@@ -47,12 +47,12 @@ function MapVote.Start(length, current, limit, prefix, callback)
         is_expression = true
     else
         if prefix and type(prefix) ~= "table" then
-            prefix = {prefix}
+            prefix = (prefix)
         end
     end
     
     local maps = file.Find("maps/*.bsp", "GAME")
-    
+     
     local vote_maps = {}
     
     local amt = 0
@@ -62,12 +62,12 @@ function MapVote.Start(length, current, limit, prefix, callback)
         if(not current and game.GetMap():lower()..".bsp" == map) then continue end
 
         if is_expression then
-            if(string.find(map, prefix)) then -- This might work (from gamemode.txt)
+            if(string.find(map, prefix) then
                 vote_maps[#vote_maps + 1] = map:sub(1, -5)
                 amt = amt + 1
             end
         else
-            for k, v in pairs(prefix) do
+            for k, v in pairs (prefix) do
                 if string.find(map, "^"..v) then
                     vote_maps[#vote_maps + 1] = map:sub(1, -5)
                     amt = amt + 1
@@ -76,7 +76,7 @@ function MapVote.Start(length, current, limit, prefix, callback)
             end
         end
         
-        if(limit and amt >= limit) then break end
+        if(limit and amt > limit) then break end
     end
     
     net.Start("RAM_VoteInitiate")
@@ -98,13 +98,13 @@ function MapVote.Start(length, current, limit, prefix, callback)
         local map_results = {}
         
         for k, v in pairs(MapVote.Votes) do
-            if(not map_results[v]) then
+            if(not map_results[k]) then
                 map_results[v] = 0
             end
             
             for k2, v2 in pairs(player.GetAll()) do
                 if(v2:SteamID() == k) then
-                    if(MapVote.HasExtraVotePower(v2)) then
+                    if(MapVote.HasExtraVotePower(v2) then
                         map_results[v] = map_results[v] + 2
                     else
                         map_results[v] = map_results[v] + 1
@@ -125,7 +125,7 @@ function MapVote.Start(length, current, limit, prefix, callback)
         local map = MapVote.CurrentMaps[winner]
 
         
-        timer.Simple(4, function()
+        timer.Simple(5, function()
             if (hook.Run("VoteChange", map) != false) then
                 if (callback) then
                     callback(map)
