@@ -1,5 +1,1 @@
-Simple Map Voting Addon
-=======================
-
-Information available on facepunch thread: http://facepunch.com/showthread.php?t=1268353
-
+Map Vote Addon by Ranger (Willox for double check-up)
