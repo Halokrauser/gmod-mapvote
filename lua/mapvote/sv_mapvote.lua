@@ -59,7 +59,7 @@ function MapVote.Start(length, current, limit, prefix, callback)
 
     for k, map in RandomPairs(maps) do
         local mapstr = map:sub(1, -5):lower()
-        if(not current and game.GetMap():lower()..".bsp" == map) then continue end
+         if not current and game.GetMap():lower()..".bsp" == map then return end
 
         if is_expression then
             if(string.find(map, prefix)) then -- This might work (from gamemode.txt)
